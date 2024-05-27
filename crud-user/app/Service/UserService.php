@@ -6,6 +6,7 @@ use App\Exceptions\EmailDoesNotExitsException;
 use App\Exceptions\InvalidCredentialsException;
 use App\Http\Resources\UserResource;
 use App\Repository\UserRepository;
+use Illuminate\Support\Str;
 
 class UserService
 {
@@ -52,6 +53,33 @@ class UserService
 
     public function getAll()
     {
-        return $this->userRepository->all();
+        return $this->userRepository->getAllUsers();
+    }
+
+    public function delete($id)
+    {
+        return $this->userRepository->delete($id);
+    }
+
+    public function update($id, array $data)
+    {
+        $user = $this->userRepository->find($id);
+        $user->update($data);
+
+        return $user;
+    }
+
+    public function createUser(array $data)
+    {
+        $user = $this->userRepository->findByEmail($data['email']);
+        if (!$user) {
+            $user = $this->userRepository->create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Str::random(10),
+            ]);
+        }
+
+        return $user;
     }
 }
